@@ -84,7 +84,7 @@ def parse_options():
     (options, args) = parser.parse_args ()
     if len(args) != 1:
         parser.print_help()
-        raise SystemExit, 1
+        raise SystemExit(1)
     return (options, args[0])
 
 
@@ -100,11 +100,11 @@ def sanitize_input(options):
             options.samples = options.fft_len
     if options.method in ('burg', 'fcov', 'fmcov', 'esprit', 'music') \
             and options.order is None:
-        print "Parametric methods require an order parameter."
-        raise SystemExit, 1
+        print ("Parametric methods require an order parameter.")
+        raise SystemExit(1)
     if options.method in ('burg', 'fcov', 'fmcov') and options.order < 2:
-        print "AR methods require an order parameter greater or equal to 2."
-        raise SystemExit, 1
+        print ("AR methods require an order parameter greater or equal to 2.")
+        raise SystemExit(1)
     options.window_type = {
             "rect":           filter.firdes.WIN_RECTANGULAR,
             "hamming":        filter.firdes.WIN_HAMMING,
@@ -113,8 +113,8 @@ def sanitize_input(options):
             "blackman":       filter.firdes.WIN_BLACKMAN,
             "blackmanharris": filter.firdes.WIN_BLACKMAN_hARRIS}[options.window_type]
     if options.method in ('music', 'esprit') and options.correlation_size <= options.order:
-        print "Correlation Size C must be bigger than the number of assumed sinusoids P"
-        raise SystemExit, 1
+        print ("Correlation Size C must be bigger than the number of assumed sinusoids P")
+        raise SystemExit(1)
     options.sample_size = {'complex': gr.sizeof_gr_complex,
                            'real': gr.sizeof_float}[options.sample_type]
     return options
@@ -122,30 +122,30 @@ def sanitize_input(options):
 
 def verbose_output_estimator(options):
     """Print verbose output about the chosen estimator."""
-    print 'Estimator information:'
-    print '  Estimating from a total of %d samples.' % options.samples
-    print '  Output FFT size: %d' % options.fft_len
-    print '  Estimator: %s' % options.method,
+    print ('Estimator information:')
+    print ('  Estimating from a total of %d samples.' % options.samples)
+    print ('  Output FFT size: %d' % options.fft_len)
+    print ('  Estimator: %s' % options.method,)
     if options.method in ('welch', 'welchsp', 'mtm'):
-        print '[Non-Parametric]'
+        print ('[Non-Parametric]')
     else:
-        print '[Parametric]'
-        print '  Specified model order: %d' % options.order
+        print ('[Parametric]')
+        print ('  Specified model order: %d' % options.order)
     if options.method in ('welch', 'welchsp'):
-        print '  Window type: %s' % (
+        print ('  Window type: %s' % (
                         'Rectangular', 'Hamming', 'Hann', 'Kaiser',
                         'Blackman', 'Blackman-Harris'
-                    )[options.window_type]
+                    )[options.window_type])
         if options.window_type == 'kaiser':
-            print '  Window β: %d' % options.window_param
+            print ('  Window β: %d' % options.window_param)
         if options.method == 'welch':
-            print '  MA filter length: %d ' % options.ma_length
+            print ('  MA filter length: %d ' % options.ma_length)
         else:
-            print '  Single Pole Coefficient α: %f' % options.alpha
-        print '  Periodogram overlap (samples): %d' % options.overlap
+            print ('  Single Pole Coefficient α: %f' % options.alpha)
+        print ('  Periodogram overlap (samples): %d' % options.overlap)
     if options.method in ('esprit', 'music'):
-        print '  Autocorrelation matrix size: %d x %d' % \
-                (options.correlation_size,options.correlation_size)
+        print ('  Autocorrelation matrix size: %d x %d' % \
+                (options.correlation_size,options.correlation_size))
 
 
 class CalcSpecest(gr.top_block):
@@ -171,7 +171,7 @@ class CalcSpecest(gr.top_block):
         is necessary. """
         if self.filename[-4:].lower() == '.wav':
             if self.options.verbose:
-                print 'Reading data from a WAV file.'
+                print ('Reading data from a WAV file.')
             src = blocks.wavfile_source(self.filename, True)
             f2c = blocks.float_to_complex()
             self.connect((src, 0), (f2c, 0))
@@ -180,17 +180,17 @@ class CalcSpecest(gr.top_block):
             self.connect(f2c, self.head)
         else:
             if self.options.verbose:
-                print 'Reading data from a raw data file.'
+                print ('Reading data from a raw data file.')
             src = blocks.file_source(self.options.sample_size, self.filename, True)
             if self.options.sample_size == gr.sizeof_float:
                 f2c = blocks.float_to_complex()
                 self.connect(src, f2c, self.head)
                 if self.options.verbose:
-                    print '  Input data is considered real.'
+                    print ('  Input data is considered real.')
             else:
                 self.connect(src, self.head)
                 if self.options.verbose:
-                    print '  Input data is considered complex.'
+                    print ('  Input data is considered complex.')
 
     def _setup_specest(self):
         """Select the chosen estimator and configure it, add it into the flow
@@ -257,4 +257,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
